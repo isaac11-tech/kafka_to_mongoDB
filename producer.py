@@ -1,14 +1,23 @@
 from kafka import KafkaProducer
 import json
 
-producer = KafkaProducer(
-    bootstrap_servers=['localhost:9092'],
-    value_serializer=lambda v: json.dumps(v).encode('utf-8')
-)
 
-message = {"msg": "Hello Kafka from Python!"}
-producer.send("test-topic", message)
+class Producer:
 
-print("Message sent:", message)
-producer.flush()
-producer.close()
+    def __init__(self, host='localhost:9092'):
+        # creating producer object
+        self.producer = KafkaProducer(
+            bootstrap_servers=[host],
+            value_serializer=lambda v: json.dumps(v).encode('utf-8')
+        )
+
+    def send_data(self, data, topic):
+        try:
+            self.producer.send(topic, data)
+            self.producer.flush()
+            print("Message sent:", data)
+        except Exception as e:
+            print("Error sending message:", e)
+
+    def close_producer(self):
+        self.producer.close()
